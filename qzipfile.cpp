@@ -29,7 +29,7 @@ namespace qompress
 {
 
 QZipFile::QZipFile(const QString &name, QObject *parent) :
-    QIODevice(parent), m_fileName(name)
+    QIODevice(parent), m_fileName(name), m_unzFile(0)
 {
 }
 
@@ -39,11 +39,24 @@ QZipFile::~QZipFile()
 
 bool QZipFile::open()
 {
-    return false;
+    if (m_unzFile) {
+        setError("File is already open"); 
+        return false;
+    }
+
+    m_unzFile = unzOpen64(m_fileName.toAscii());
+    if (m_unzFile)
+        return true;
+    else {
+        // XXX: more human-readable
+        setError("unzOpen64 failed");
+        return false;
+    }
 }
 
 void QZipFile::close()
 {
+    unzClose(m_unzFile);
 }
 
 qint64 QZipFile::readData(char*, qint64)

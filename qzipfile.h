@@ -27,6 +27,7 @@
 #ifndef QZIPFILE_H
 #define QZIPFILE_H
 
+#include "unzip.h"
 #include <QIODevice>
 
 namespace qompress {
@@ -40,9 +41,21 @@ public:
     void close();
     qint64 readData(char*, qint64);
     qint64 writeData(const char*, qint64);
+    QString error() 
+    {
+        return m_errorStr;
+    };
+
+protected:
+    void setError(const QString &s)
+    {
+        m_errorStr = s;
+    };
 
 private:
     QString m_fileName;
+    unzFile m_unzFile;
+    QString m_errorStr;
 };
 
 } // namespace

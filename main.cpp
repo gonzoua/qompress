@@ -25,6 +25,7 @@
  */
 
 #include <cstdlib>
+#include <QDebug>
 #include "qzipfile.h"
 
 using namespace qompress;
@@ -39,8 +40,11 @@ int main(int argc, char **argv)
     QZipFile zf(argv[1]);
 
     if (!zf.open()) {
-        qFatal("Failed to open %s", argv[1]); 
+        qDebug() << "Failed to open " << argv[1] << ": " << zf.error();
+        return 1;
     }
+
+    zf.close();
 
     return 0;
 }
