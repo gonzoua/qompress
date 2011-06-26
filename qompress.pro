@@ -1,5 +1,6 @@
 TEMPLATE = app
 CONFIG += qt consolr
+mac:DEFINES += USE_FILE32API
 
 include(3rdparty/zlib.pri)
 
