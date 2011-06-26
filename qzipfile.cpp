@@ -69,4 +69,28 @@ qint64 QZipFile::writeData(const char*, qint64)
     return -1;
 }
 
+
+QZipFileEntry QZipFile::currentEntry()
+{
+    int err;
+    char filename_inzip[256];
+    unz_file_info64 file_info;
+    err = unzGetCurrentFileInfo64(m_unzFile, &file_info, filename_inzip, 
+            sizeof(filename_inzip), NULL, 0, NULL, 0);
+    if (err) {
+        // XXX: fix error reporting
+        setError("unzGetCurrentFileInfo64 failed");
+        return QZipFileEntry();
+    }
+    else 
+        return QZipFileEntry(filename_inzip, file_info);
+
+}
+
+bool QZipFile::nextEntry()
+{
+    int err = unzGoToNextFile(m_unzFile);
+    return (err == UNZ_OK);
+}
+
 } // namespace

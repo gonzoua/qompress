@@ -24,45 +24,33 @@
  * SUCH DAMAGE.
  */
 
-#ifndef QZIPFILE_H
-#define QZIPFILE_H
+#ifndef QZIPFILEENTRY_H
+#define QZIPFILEENTRY_H
 
 #include "unzip.h"
 #include <QIODevice>
 
-#include "qzipfileentry.h"
-
 namespace qompress {
 
-class QZipFile : public QIODevice
+class QZipFileEntry
 {
 public:
-    QZipFile(const QString &name, QObject *parent = 0);
-    ~QZipFile();
-    bool open();
-    void close();
-    qint64 readData(char*, qint64);
-    qint64 writeData(const char*, qint64);
-    QString error() 
-    {
-        return m_errorStr;
-    };
+    QZipFileEntry();
+    QZipFileEntry(QString name, const unz_file_info64 &info);
+    ~QZipFileEntry();
 
-    QZipFileEntry currentEntry();
-    bool nextEntry();
-
-protected:
-    void setError(const QString &s)
-    {
-        m_errorStr = s;
-    };
+    bool isValid() { return m_valid; }
+    QString name() const { return m_name; };
+    qint64 compressedSize() { return m_info.compressed_size; };
+    qint64 uncompressedSize() { return m_info.uncompressed_size; };
+    bool isEncrypted();
 
 private:
-    QString m_fileName;
-    unzFile m_unzFile;
-    QString m_errorStr;
+    QString m_name;
+    unz_file_info64 m_info;
+    bool m_valid;
 };
 
 } // namespace
 
-#endif // QZIPFILE_H
+#endif // QZIPFILEENTRY_H

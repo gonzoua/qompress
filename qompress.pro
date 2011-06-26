@@ -5,8 +5,10 @@ mac:DEFINES += USE_FILE32API
 include(3rdparty/zlib.pri)
 
 HEADERS += \
-    $$PWD/qzipfile.h
+    $$PWD/qzipfile.h \
+    $$PWD/qzipfileentry.h
 
 SOURCES += \
     $$PWD/main.cpp \
     $$PWD/qzipfile.cpp \
+    $$PWD/qzipfileentry.cpp 

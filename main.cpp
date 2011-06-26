@@ -44,6 +44,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    do {
+        QZipFileEntry file = zf.currentEntry();
+        qDebug() << file.name() << ":\t\t" << file.uncompressedSize() << "bytes (uncompressed)";
+    } while (zf.nextEntry());
+
     zf.close();
 
     return 0;
