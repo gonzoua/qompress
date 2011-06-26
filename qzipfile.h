@@ -50,6 +50,7 @@ public:
 
     QZipFileEntry currentEntry();
     bool nextEntry();
+    bool extractCurrentEntry(QIODevice &out, const QString &password = "");
 
 protected:
     void setError(const QString &s)

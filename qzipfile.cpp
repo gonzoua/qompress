@@ -93,4 +93,55 @@ bool QZipFile::nextEntry()
     return (err == UNZ_OK);
 }
 
+bool QZipFile::extractCurrentEntry(QIODevice &out, const QString &password)
+{
+    int err;
+    char buf[8192];
+    bool result = true;
+
+    if (!password.isEmpty())
+        err = unzOpenCurrentFilePassword(m_unzFile, password.toAscii());
+    else
+        err = unzOpenCurrentFile(m_unzFile);
+    if (err!=UNZ_OK) {
+        fprintf(stderr, "%d\n", err);
+        setError("unzOpenCurrentFile failed");
+        return false;
+    }
+
+    do
+    {
+        err = unzReadCurrentFile(m_unzFile, buf, sizeof(buf));
+        if (err<0)
+        {
+            setError("unzReadCurrentFile failed");
+            break;
+        }
+        if (err>0) {
+            qint64 written;
+
+            do {
+                written = out.write(buf, err);
+                if (written < 0)
+                    break;
+                err -= written; 
+            } while (err > 0);
+
+            if (written < 0)
+                err = -1;
+        }
+    }
+    while (err>0);
+
+    if (err < 0)
+        result = false;
+
+    err = unzCloseCurrentFile(m_unzFile);
+
+    if (err != UNZ_OK)
+        result = false;
+
+    return result;
+}
+
 } // namespace
