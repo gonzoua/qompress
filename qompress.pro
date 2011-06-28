@@ -2,6 +2,9 @@ TEMPLATE = app
 CONFIG += qt consolr
 mac:DEFINES += USE_FILE32API
 
+# Uncomment this to disable encryption support
+# DEFINES += NOUNCRYPT
+
 include(3rdparty/zlib.pri)
 
 HEADERS += \
