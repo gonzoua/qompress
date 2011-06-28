@@ -87,6 +87,11 @@ QZipFileEntry QZipFile::currentEntry()
 
 }
 
+bool QZipFile::gotoFirstEntry()
+{
+    return (unzGoToFirstFile(m_unzFile) == UNZ_OK);
+}
+
 bool QZipFile::nextEntry()
 {
     int err = unzGoToNextFile(m_unzFile);
@@ -153,6 +158,19 @@ bool QZipFile::extractEntry(QIODevice &out, const QString file, const QString &p
     }
 
     return extractCurrentEntry(out, password);
+}
+
+QStringList QZipFile::filenames()
+{
+    QStringList result;
+    gotoFirstEntry();
+    do {
+        QZipFileEntry info = currentEntry();
+        if (info.isValid())
+            result << info.name();
+    } while (nextEntry());
+
+    return result;
 }
 
 } // namespace

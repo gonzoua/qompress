@@ -29,6 +29,7 @@
 
 #include "unzip.h"
 #include <QIODevice>
+#include <QStringList>
 
 #include "qzipfileentry.h"
 
@@ -49,9 +50,11 @@ public:
     };
 
     QZipFileEntry currentEntry();
+    bool gotoFirstEntry();
     bool nextEntry();
     bool extractCurrentEntry(QIODevice &out, const QString &password = "");
     bool extractEntry(QIODevice &out, const QString file, const QString &password = "");
+    QStringList filenames();
 
 protected:
     void setError(const QString &s)
