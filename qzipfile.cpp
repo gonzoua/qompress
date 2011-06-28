@@ -144,4 +144,15 @@ bool QZipFile::extractCurrentEntry(QIODevice &out, const QString &password)
     return result;
 }
 
+bool QZipFile::extractEntry(QIODevice &out, const QString file, const QString &password)
+{
+    if (unzLocateFile(m_unzFile, file.toAscii(), 1) != UNZ_OK)
+    {
+        setError("File not found");
+        return false;
+    }
+
+    return extractCurrentEntry(out, password);
+}
+
 } // namespace
