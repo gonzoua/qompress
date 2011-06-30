@@ -40,7 +40,7 @@ QZipFile::~QZipFile()
 bool QZipFile::open()
 {
     if (m_unzFile) {
-        setError("File is already open"); 
+        setErrorString("File is already open"); 
         return false;
     }
 
@@ -48,8 +48,8 @@ bool QZipFile::open()
     if (m_unzFile)
         return true;
     else {
-        // XXX: more human-readable
-        setError("unzOpen64 failed");
+        // no valid information at this point
+        setErrorString("Error opening Zip file");
         return false;
     }
 }
@@ -57,6 +57,7 @@ bool QZipFile::open()
 void QZipFile::close()
 {
     unzClose(m_unzFile);
+    m_unzFile = 0;
 }
 
 qint64 QZipFile::readData(char*, qint64)
@@ -78,8 +79,7 @@ QZipFileEntry QZipFile::currentEntry()
     err = unzGetCurrentFileInfo64(m_unzFile, &file_info, filename_inzip, 
             sizeof(filename_inzip), NULL, 0, NULL, 0);
     if (err) {
-        // XXX: fix error reporting
-        setError("unzGetCurrentFileInfo64 failed");
+        setErrorString("Failed to current get entry info");
         return QZipFileEntry();
     }
     else 
@@ -109,8 +109,7 @@ bool QZipFile::extractCurrentEntry(QIODevice &out, const QString &password)
     else
         err = unzOpenCurrentFile(m_unzFile);
     if (err!=UNZ_OK) {
-        fprintf(stderr, "%d\n", err);
-        setError("unzOpenCurrentFile failed");
+        setErrorString("Error opening archive entry");
         return false;
     }
 
@@ -119,7 +118,7 @@ bool QZipFile::extractCurrentEntry(QIODevice &out, const QString &password)
         err = unzReadCurrentFile(m_unzFile, buf, sizeof(buf));
         if (err<0)
         {
-            setError("unzReadCurrentFile failed");
+            setErrorString("Error reading current archive entry");
             break;
         }
         if (err>0) {
@@ -153,7 +152,7 @@ bool QZipFile::extractEntry(QIODevice &out, const QString file, const QString &p
 {
     if (unzLocateFile(m_unzFile, file.toAscii(), 1) != UNZ_OK)
     {
-        setError("File not found");
+        setErrorString("File '" + file + "' not found in archive");
         return false;
     }
 

@@ -44,10 +44,6 @@ public:
     void close();
     qint64 readData(char*, qint64);
     qint64 writeData(const char*, qint64);
-    QString error() 
-    {
-        return m_errorStr;
-    };
 
     QZipFileEntry currentEntry();
     bool gotoFirstEntry();
@@ -56,16 +52,9 @@ public:
     bool extractEntry(QIODevice &out, const QString file, const QString &password = "");
     QStringList filenames();
 
-protected:
-    void setError(const QString &s)
-    {
-        m_errorStr = s;
-    };
-
 private:
     QString m_fileName;
     unzFile m_unzFile;
-    QString m_errorStr;
 };
 
 } // namespace
