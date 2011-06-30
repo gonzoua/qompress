@@ -43,7 +43,7 @@ public:
     QString name() const { return m_name; };
     qint64 compressedSize() { return m_info.compressed_size; };
     qint64 uncompressedSize() { return m_info.uncompressed_size; };
-    bool isEncrypted();
+    bool isEncrypted() { return (m_info.flag & 1) != 0; };
 
 private:
     QString m_name;
