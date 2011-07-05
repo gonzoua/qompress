@@ -56,6 +56,7 @@
     if (!zf.extractEntry(stdOut, "topsikret.txt", "truePasswordsAreNevereCracked"))
         qDebug() << "Failed to extract: " << zf.errorString();
 
+    @endcode
 */
 
 #endif // __QOMPRESS_H__
