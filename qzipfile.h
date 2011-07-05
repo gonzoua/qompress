@@ -35,21 +35,37 @@
 
 namespace qompress {
 
+/**
+ * \brief Interface to ZIP file. Instance of this class provides interface to 
+ * archive entries. 
+ *
+ * QZipFile represents archive as a list of entries and maintain
+ * "pointer" to one of them, this entry is called current. It's possible to 
+ * navigate through list using gotoFirstEntry() and nextEntry() methods
+ */
 class QZipFile : public QIODevice
 {
 public:
     QZipFile(const QString &name, QObject *parent = 0);
     ~QZipFile();
+
     bool open();
     void close();
+
     qint64 readData(char*, qint64);
     qint64 writeData(const char*, qint64);
 
+    /// returns info for current entry
     QZipFileEntry currentEntry();
+    /// set pointer to first archive entry, returns true if succeded, false otherwise
     bool gotoFirstEntry();
+    /// move pointer to the next archive entry. True if succeded, false if pointer is at the last entry
     bool nextEntry();
+    /// Exctract current entry and write it to \a out
     bool extractCurrentEntry(QIODevice &out, const QString &password = "");
+    /// Exctract entry named \a file and write it to \a out
     bool extractEntry(QIODevice &out, const QString file, const QString &password = "");
+    /// returns list with entry names
     QStringList filenames();
 
 private:
