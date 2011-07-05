@@ -28,7 +28,7 @@
 
 #include "qzipfile.h"
 
-/*! \mainpage Simple PxAPI example
+/*! \mainpage Simple QZipFile example
     @code
     #include "qompress.h"
 
