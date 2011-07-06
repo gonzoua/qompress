@@ -39,10 +39,15 @@ public:
     QZipFileEntry(QString name, const unz_file_info64 &info);
     ~QZipFileEntry();
 
+    /// returns true if entry is valid
     bool isValid() { return m_valid; }
+    /// returns entry name
     QString name() const { return m_name; };
+    /// returns compressed size
     qint64 compressedSize() { return m_info.compressed_size; };
+    /// returns uncompressed size
     qint64 uncompressedSize() { return m_info.uncompressed_size; };
+    /// reutrns true if entry is encrypted
     bool isEncrypted() { return (m_info.flag & 1) != 0; };
 
 private:
