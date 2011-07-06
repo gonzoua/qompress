@@ -39,8 +39,8 @@ int main(int argc, char **argv)
 
     QZipFile zf(argv[1]);
 
-    if (!zf.open()) {
-        qDebug() << "Failed to open " << argv[1] << ": " << zf.error();
+    if (!zf.open(QZipFile::ReadOnly)) {
+        qDebug() << "Failed to open " << argv[1] << ": " << zf.errorString();
         return 1;
     }
 

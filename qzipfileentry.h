@@ -34,9 +34,13 @@ namespace qompress {
 
 class QZipFileEntry
 {
+    friend class QZipFile;
+
+protected:
+    QZipFileEntry(QString name, const unz_file_info64 &info);
+
 public:
     QZipFileEntry();
-    QZipFileEntry(QString name, const unz_file_info64 &info);
     ~QZipFileEntry();
 
     /// returns true if entry is valid
