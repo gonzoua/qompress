@@ -29,47 +29,41 @@ namespace qompress
 {
 
 QZipFile::QZipFile(const QString &name, QObject *parent) :
-    QIODevice(parent), m_fileName(name), m_unzFile(0)
+    QObject(parent), m_fileName(name), m_unzFile(0)
 {
 }
 
 QZipFile::~QZipFile()
 {
+    close();
 }
 
-bool QZipFile::open()
+bool QZipFile::open(OpenMode mode)
 {
-    if (m_unzFile) {
-        setErrorString("File is already open"); 
-        return false;
-    }
+    if (mode == ReadOnly) {
+        if (m_unzFile) {
+            setErrorString("File is already open"); 
+            return false;
+        }
 
-    m_unzFile = unzOpen64(m_fileName.toAscii());
-    if (m_unzFile)
-        return true;
-    else {
-        // no valid information at this point
-        setErrorString("Error opening Zip file");
-        return false;
+        m_unzFile = unzOpen64(m_fileName.toAscii());
+        if (m_unzFile)
+            return true;
+        else {
+            // no valid information at this point
+            setErrorString("Error opening Zip file");
+            return false;
+        }
     }
 }
 
 void QZipFile::close()
 {
-    unzClose(m_unzFile);
-    m_unzFile = 0;
+    if (m_unzFile) {
+        unzClose(m_unzFile);
+        m_unzFile = 0;
+    }
 }
-
-qint64 QZipFile::readData(char*, qint64)
-{
-    return -1;
-}
-
-qint64 QZipFile::writeData(const char*, qint64)
-{
-    return -1;
-}
-
 
 QZipFileEntry QZipFile::currentEntry()
 {

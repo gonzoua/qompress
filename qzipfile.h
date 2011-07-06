@@ -43,17 +43,21 @@ namespace qompress {
  * "pointer" to one of them, this entry is called current. It's possible to 
  * navigate through list using gotoFirstEntry() and nextEntry() methods
  */
-class QZipFile : public QIODevice
+class QZipFile : public QObject
 {
 public:
+    enum OpenMode {
+        NotOpened,          /// archive is not opened
+        ReadOnly,           /// open archive for read
+        WriteOnlyAppend,    /// open archive for appending files
+        WriteOnlyTruncate,  /// recreate archive
+    };
+
     QZipFile(const QString &name, QObject *parent = 0);
     ~QZipFile();
 
-    bool open();
+    bool open(OpenMode);
     void close();
-
-    qint64 readData(char*, qint64);
-    qint64 writeData(const char*, qint64);
 
     /// returns info for current entry
     QZipFileEntry currentEntry();
@@ -67,10 +71,18 @@ public:
     bool extractEntry(QIODevice &out, const QString file, const QString &password = "");
     /// returns list with entry names
     QStringList filenames();
+    /// get human-readable description of last error
+    QString errorString() const { return m_error; };
+    /// returns mode archive has been opened in
+    OpenMode openMode() { return m_mode; };
 
 private:
+    void setErrorString(const QString &s) { m_error = s; };
+
     QString m_fileName;
+    QString m_error;
     unzFile m_unzFile;
+    OpenMode m_mode;
 };
 
 } // namespace
