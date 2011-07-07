@@ -43,4 +43,23 @@ QZipFileEntry::~QZipFileEntry()
 {
 }
 
+
+QDateTime QZipFileEntry::modificationTime()
+{
+    QDateTime mtime;
+    if (!isValid())
+        return mtime;
+    quint32 lDate, lTime;
+    ZPOS64_T uDate;
+    lDate = m_info.dosDate >> 16;
+    lTime = m_info.dosDate & 0xffff;;
+
+    mtime.setTime(QTime(lTime >> 11, (lTime >> 5) & 0x3f,
+        lTime & 0x1f));
+    mtime.setDate(QDate((lDate >> 9) + 1980, (lTime >> 5) & 0xf,
+        lTime & 0x1f));
+
+    return mtime;
+}
+
 } // namespace
