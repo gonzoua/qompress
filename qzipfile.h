@@ -53,10 +53,13 @@ public:
         WriteOnlyTruncate,  /// recreate archive
     };
 
+    /// constructor
     QZipFile(const QString &name, QObject *parent = 0);
     ~QZipFile();
 
-    bool open(OpenMode);
+    /// open archive in specified \a mode
+    bool open(OpenMode mode);
+    /// close archive
     void close();
 
     /// returns info for current entry
