@@ -28,6 +28,7 @@
 #define QZIPFILE_H
 
 #include "unzip.h"
+#include "zip.h"
 #include <QIODevice>
 #include <QStringList>
 
@@ -62,6 +63,15 @@ public:
     /// close archive
     void close();
 
+    /// get human-readable description of last error
+    QString errorString() const { return m_error; };
+    /// returns mode archive has been opened in
+    OpenMode openMode() { return m_mode; };
+    
+    // **
+    // Unarchive API
+    // **
+
     /// returns info for current entry
     QZipFileEntry currentEntry();
     /// set pointer to first archive entry, returns true if succeded, false otherwise
@@ -71,21 +81,28 @@ public:
     /// Exctract current entry and write it to \a out
     bool extractCurrentEntry(QIODevice &out, const QString &password = "");
     /// Exctract entry named \a file and write it to \a out
-    bool extractEntry(QIODevice &out, const QString file, const QString &password = "");
+    bool extractEntry(QIODevice &out, const QString &file, const QString &password = "");
     /// returns list with entry names
     QStringList filenames();
-    /// get human-readable description of last error
-    QString errorString() const { return m_error; };
-    /// returns mode archive has been opened in
-    OpenMode openMode() { return m_mode; };
+
+    // **
+    // Archive API
+    // **
+    bool addEntry(QIODevice &in, const QString &file, const QString &password = "");
+    void setCompressionLevel(int level) { m_compressionLevel = level; };
+    int compressionLevel() const { return m_compressionLevel; }
+    
 
 private:
     void setErrorString(const QString &s) { m_error = s; };
 
     QString m_fileName;
     QString m_error;
-    unzFile m_unzFile;
     OpenMode m_mode;
+    int m_compressionLevel;
+
+    unzFile m_unzFile;
+    zipFile m_zipFile;
 };
 
 } // namespace

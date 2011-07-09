@@ -29,7 +29,8 @@ namespace qompress
 {
 
 QZipFile::QZipFile(const QString &name, QObject *parent) :
-    QObject(parent), m_fileName(name), m_unzFile(0)
+    QObject(parent), m_fileName(name), m_unzFile(NULL),
+    m_zipFile(NULL)
 {
 }
 
@@ -40,21 +41,32 @@ QZipFile::~QZipFile()
 
 bool QZipFile::open(OpenMode mode)
 {
-    if (mode == ReadOnly) {
-        if (m_unzFile) {
-            setErrorString("File is already open"); 
-            return false;
-        }
+    if (m_unzFile || m_zipFile) {
+        setErrorString("File is already open"); 
+        return false;
+    }
 
+    if (mode == ReadOnly) {
         m_unzFile = unzOpen64(m_fileName.toAscii());
-        if (m_unzFile)
-            return true;
-        else {
+        if (m_unzFile == NULL) {
             // no valid information at this point
-            setErrorString("Error opening Zip file");
+            setErrorString("Error opening Zip file for reading");
             return false;
         }
     }
+    else if ((mode == WriteOnlyTruncate) || (mode == WriteOnlyAppend)) {
+        m_zipFile = zipOpen64(m_fileName.toAscii(),(mode == WriteOnlyAppend) ? 2 : 0);
+        if (m_zipFile == NULL) {
+            // no valid information at this point
+            setErrorString("Error opening Zip file for writing");
+            return false;
+        }
+    }
+    else
+        return false;
+
+    m_mode = mode;
+    return true;
 }
 
 void QZipFile::close()
@@ -63,7 +75,16 @@ void QZipFile::close()
         unzClose(m_unzFile);
         m_unzFile = 0;
     }
+
+    if (m_zipFile) {
+        zipClose(m_zipFile, NULL);
+        m_zipFile = NULL;
+    }
 }
+
+// 
+// Un-archive API
+//
 
 QZipFileEntry QZipFile::currentEntry()
 {
@@ -142,7 +163,7 @@ bool QZipFile::extractCurrentEntry(QIODevice &out, const QString &password)
     return result;
 }
 
-bool QZipFile::extractEntry(QIODevice &out, const QString file, const QString &password)
+bool QZipFile::extractEntry(QIODevice &out, const QString &file, const QString &password)
 {
     if (unzLocateFile(m_unzFile, file.toAscii(), 1) != UNZ_OK)
     {
@@ -164,6 +185,58 @@ QStringList QZipFile::filenames()
     } while (nextEntry());
 
     return result;
+}
+
+// 
+// Archive API
+//
+
+bool QZipFile::addEntry(QIODevice &in, const QString &file, const QString &password)
+{
+    zip_fileinfo zi;
+    unsigned long crcFile=0;
+    int isZip64 = 0;
+    char buf[8192];
+    qint64 readed;
+
+    zi.tmz_date.tm_sec = zi.tmz_date.tm_min = zi.tmz_date.tm_hour =
+    zi.tmz_date.tm_mday = zi.tmz_date.tm_mon = zi.tmz_date.tm_year = 0;
+    zi.dosDate = 0;
+    zi.internal_fa = 0;
+    zi.external_fa = 0;
+
+    int err = zipOpenNewFileInZip3_64(m_zipFile, file.toAscii(), &zi,
+        NULL, 0, NULL, 0, NULL /* comment*/,
+        (m_compressionLevel != 0) ? Z_DEFLATED : 0,
+        m_compressionLevel, 0, 
+        -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, 
+        NULL, crcFile, isZip64);
+
+    if (err != ZIP_OK) {
+        setErrorString("FIXME");
+        return false;
+    }
+
+    while ((readed = in.read(buf, sizeof(buf))) > 0) {
+        err = zipWriteInFileInZip (m_zipFile, buf, readed);
+        if (err < 0) {
+            setErrorString("Error writing to zip file");
+            return false;
+        }
+    }
+
+    if (readed < 0) {
+        setErrorString("Failed to read data");
+        return false;
+    }
+
+    err = zipCloseFileInZip(m_zipFile);
+    if (err < 0) {
+        setErrorString("Error writing to zip file");
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace
