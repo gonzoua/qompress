@@ -12,4 +12,6 @@ SOURCES+= \
     $$PWD/uncompr.c \
     $$PWD/zutil.c \
     $$PWD/ioapi.c \
-    $$PWD/unzip.c
+    $$PWD/unzip.c \
+    $$PWD/zip.h \
+    $$PWD/zip.c
